@@ -1,0 +1,6 @@
+@GOOD_HAMBURGER_HostAddress = http://localhost:5023
+
+GET {{GOOD_HAMBURGER_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
