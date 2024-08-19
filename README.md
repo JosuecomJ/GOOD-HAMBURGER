@@ -5,7 +5,6 @@
 The GOOD HAMBURGER API is an ASP.NET Core application that manages orders and menu items for a hamburger restaurant. The API allows the creation, reading, and listing of orders and menu items, including extra items and sandwiches.
 
 
-GOOD-HAMBURGER/ ├── Controllers/ │   ├── MenuItemController.cs │   └── OrderController.cs ├── Data/ │   ├── AppDBContext.cs │   └── SeedData.cs ├── Model/ │   ├── MenuItemModel.cs │   └── OrderRequestModel.cs ├── Services/ │   ├── IOrderService.cs │   ├── OrderService.cs │   ├── IMenuItem.cs │   └── MenuItemService.cs ├── GOOD-HAMBURGER.csproj └── Program.cs
 
 ## Project Structure
 
