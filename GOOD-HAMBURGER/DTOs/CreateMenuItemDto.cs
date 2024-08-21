@@ -2,11 +2,19 @@
 
 public class CreateMenuItemDTO
 {
+    public CreateMenuItemDTO(ItemType type, string? name, decimal price, bool isExtra)
+    {
+        Type = type;
+        Name = name;
+        Price = price;
+        IsExtra = isExtra;
+    }
+
     public ItemType Type { get; set; }
     public string? Name { get; set; }
-    public double Price { get; set; }
+    public decimal Price { get; set; }
     public bool IsExtra { get; set; }
-    public int? OrderRequestId { get; set; } // Torne a chave estrangeira nullable
+   // public int? OrderRequestId { get; set; } 
 
-    public OrderRequestModel? OrderRequest { get; set; }
+   // public OrderRequestModel? OrderRequest { get; set; }
 }

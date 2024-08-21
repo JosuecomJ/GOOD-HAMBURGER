@@ -1,12 +1,12 @@
 ﻿using GOOD_HAMBURGER.Data;
-using GOOD_HAMBURGER.Model;
-using GOOD_HAMBURGER.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
-public class CreateOrderRequestDTO
+public class UpdateOrderRequestDTO
 {
+    public int Id { get; set; }
     public string? Name { get; set; }
     public List<int> MenuItemIds { get; set; } = new List<int>();
 

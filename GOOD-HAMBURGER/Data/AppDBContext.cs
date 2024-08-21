@@ -9,17 +9,15 @@ namespace GOOD_HAMBURGER.Data
         {
         }
 
-        public DbSet<MenuItemModel> MenuItems { get; set; }
         public DbSet<OrderRequestModel> OrderRequests { get; set; }
-        // public DbSet<OrderRequestMenuItem> OrderRequestMenuItems { get; set; } // Adicione esta linha
+        public DbSet<MenuItemModel> MenuItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<OrderRequestModel>()
-                .HasMany(o => o.MenuItems)
-                .WithOne(m => m.OrderRequest)
-                .HasForeignKey(m => m.OrderRequestId)
-                .IsRequired(false);
+                .HasMany(order => order.MenuItems)
+                .WithOne()
+                .OnDelete(DeleteBehavior.Restrict); // Configura o comportamento de exclusão para Restrict
 
             base.OnModelCreating(modelBuilder);
         }

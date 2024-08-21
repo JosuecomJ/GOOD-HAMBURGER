@@ -1,12 +1,13 @@
 ﻿using GOOD_HAMBURGER.Model;
 
-namespace GOOD_HAMBURGER.Services.MealItem
+namespace GOOD_HAMBURGER.Services.MenuItem
 {
     public interface IMenuItem
     {
-        Task<ResponseModel<List<MenuItemModel>>> GetMenuItemList();
-        Task<ResponseModel<MenuItemModel>> GetMenuItem(int MenuId);
-        Task<ResponseModel<List<MenuItemModel>>> GetExtraItems();
+        Task<ResponseModel<List<MenuItemModel>>> GETMenuItems();
+        Task<ResponseModel<MenuItemModel>> GETMenuItemById(int Id);
+        Task<ResponseModel<List<MenuItemModel>>> GETExtraItemsONLY();
+        Task<ResponseModel<List<MenuItemModel>>> GETSandwichesONLY();
         Task AddMenuItem(MenuItemModel newItem);
     }
 }

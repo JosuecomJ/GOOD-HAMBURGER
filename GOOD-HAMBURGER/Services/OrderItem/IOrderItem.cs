@@ -1,12 +1,11 @@
 ﻿using GOOD_HAMBURGER.Model;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace GOOD_HAMBURGER.Services
+public interface IOrderService
 {
-    public interface IOrderService
-    {
-        Task<ResponseModel<List<OrderRequestModel>>> GetOrdersAsync();
-        
-    }
+    decimal CalculateDiscount(List<MenuItemModel> items);
+    Task<ResponseModel<List<OrderRequestModel>>> GetOrdersAsync();
+    Task<ResponseModel<OrderRequestModel>> GetOrderByIdAsync(int id);
+    Task<ResponseModel<OrderRequestModel>> CreateOrderAsync(CreateOrderRequestDTO orderRequestDto);
+    Task<ResponseModel<OrderRequestModel>> UpdateOrderAsync(UpdateOrderRequestDTO orderRequest);
+    Task<ResponseModel<bool>> DeleteOrderAsync(int id);
 }

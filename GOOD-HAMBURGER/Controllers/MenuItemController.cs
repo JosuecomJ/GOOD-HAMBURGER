@@ -1,5 +1,5 @@
 ﻿using GOOD_HAMBURGER.Model;
-using GOOD_HAMBURGER.Services.MealItem;
+using GOOD_HAMBURGER.Services.MenuItem;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GOOD_HAMBURGER.Controllers
@@ -10,12 +10,12 @@ namespace GOOD_HAMBURGER.Controllers
     {
         private readonly IMenuItem _menuItem = menuItem;
 
-        [HttpGet("GetMenuItemList")]
-        public async Task<ActionResult<ResponseModel<List<MenuItemModel>>>> GetMenuItemList()
+        [HttpGet("GETMenuItems")]
+        public async Task<ActionResult<ResponseModel<List<MenuItemModel>>>> GETMenuItems()
         {
             try
             {
-                var mealItems = await _menuItem.GetMenuItemList();
+                var mealItems = await _menuItem.GETMenuItems();
                 if (mealItems.Status)
                 {
                     mealItems.Message = "Meal items retrieved successfully";
@@ -31,13 +31,13 @@ namespace GOOD_HAMBURGER.Controllers
         }
 
 
-        [HttpGet("GetExtraItems")]
+        [HttpGet("GETExtraItemsONLY")]
         [ApiExplorerSettings(IgnoreApi = false)]
-        public async Task<ActionResult<ResponseModel<List<MenuItemModel>>>> GetExtraItems()
+        public async Task<ActionResult<ResponseModel<List<MenuItemModel>>>> GETExtraONLY()
         {
             try
             {
-                var response = await _menuItem.GetExtraItems();
+                var response = await _menuItem.GETExtraItemsONLY();
 
                 if (response.Status)
                 {
@@ -51,32 +51,53 @@ namespace GOOD_HAMBURGER.Controllers
             }
         }
 
-        [HttpGet("GetMenuItem/{id}")]
-        public async Task<ActionResult<ResponseModel<MenuItemModel>>> GetMenuItem(int MenuID)
+
+        [HttpGet("GETSandwichesONLY")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        public async Task<ActionResult<ResponseModel<List<MenuItemModel>>>> GETSandwichesONLY()
         {
             try
             {
-                // Tenta recuperar o item pelo ID
-                var mealItem = await _menuItem.GetMenuItem(MenuID);
+                var response = await _menuItem.GETSandwichesONLY();
 
-                // Verifica se o status da resposta é positivo
-                if (mealItem.Status)
+                if (response.Status)
                 {
-                    mealItem.Message = "Meal item retrieved successfully"; // Define a mensagem de sucesso
-                    return Ok(mealItem); // Retorna o item encontrado com sucesso
+                    return Ok(response);
                 }
-
-                // Se o status for falso, retorna a mensagem de erro
-                return NotFound(mealItem.Message); // Pode retornar 404 se o item não for encontrado
+                return BadRequest(response.Message);
             }
             catch (Exception ex)
             {
-                // Em caso de exceção, retorna um erro 500 com a mensagem
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
             }
         }
 
-       
+
+
+
+        [HttpGet("GetMenuItem/{id:int}")]
+        [ProducesResponseType(typeof(ResponseModel<MenuItemModel>), 200)]
+          
+        public async Task<ActionResult<ResponseModel<MenuItemModel>>> GetMenuItemById(int id)
+        {
+            try
+            {
+                var mealItem = await _menuItem.GETMenuItemById(id);
+                if (mealItem.Status)
+                {
+                    mealItem.Message = "Meal item retrieved successfully";
+                    return Ok(mealItem);
+                }
+
+                return NotFound(mealItem.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
         [HttpPost("AddMenuItem")]
         public async Task<IActionResult> AddMenuItem([FromBody] CreateMenuItemDTO newItemDto)
         {
@@ -97,13 +118,14 @@ namespace GOOD_HAMBURGER.Controllers
 
                 await _menuItem.AddMenuItem(newItem);
 
-                return CreatedAtAction(nameof(GetMenuItem), new { MenuId = newItem.Id }, newItem);
+                return CreatedAtAction(nameof(GetMenuItemById), new { id = newItem.Id }, newItem);
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
             }
         }
+
 
 
 

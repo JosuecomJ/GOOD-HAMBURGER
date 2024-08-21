@@ -1,21 +1,17 @@
 ﻿using GOOD_HAMBURGER.Data;
 using GOOD_HAMBURGER.Model;
+using GOOD_HAMBURGER.Services.MenuItem;
 using Microsoft.EntityFrameworkCore;
 
-namespace GOOD_HAMBURGER.Services.MealItem
+namespace GOOD_HAMBURGER.Services.MenuItem
 {
-    public class MenuItemService : IMenuItem
+    public class MenuItemService(AppDBContext context) : IMenuItem
     {
-        private readonly AppDBContext _context;
+        private readonly AppDBContext _context = context;
 
-        public MenuItemService(AppDBContext context)
+        public async Task<ResponseModel<MenuItemModel>> GETMenuItemById(int MenuId)
         {
-            _context = context;
-        }
-
-        public async Task<ResponseModel<MenuItemModel>> GetMenuItem(int MenuId)
-        {
-            ResponseModel<MenuItemModel> response = new ResponseModel<MenuItemModel>();
+            ResponseModel<MenuItemModel> response = new();
             try
             {
                 var menuItem = await _context.MenuItems.FindAsync(MenuId);
@@ -38,9 +34,9 @@ namespace GOOD_HAMBURGER.Services.MealItem
             return response;
         }
 
-        public async Task<ResponseModel<List<MenuItemModel>>> GetMenuItemList()
+        public async Task<ResponseModel<List<MenuItemModel>>> GETMenuItems()
         {
-            ResponseModel<List<MenuItemModel>> response = new ResponseModel<List<MenuItemModel>>();
+            ResponseModel<List<MenuItemModel>> response = new();
             try
             {
                 var mealItems = await _context.MenuItems.ToListAsync();
@@ -63,7 +59,7 @@ namespace GOOD_HAMBURGER.Services.MealItem
             return response;
         }
 
-        public async Task<ResponseModel<List<MenuItemModel>>> GetExtraItems()
+        public async Task<ResponseModel<List<MenuItemModel>>> GETExtraItemsONLY()
         {
             var response = new ResponseModel<List<MenuItemModel>>();
             try
@@ -83,13 +79,31 @@ namespace GOOD_HAMBURGER.Services.MealItem
             return response;
         }
 
+        public async Task<ResponseModel<List<MenuItemModel>>> GETSandwichesONLY()
+        {
+            var response = new ResponseModel<List<MenuItemModel>>();
+            try
+            {
+                var sandwiche = await _context.MenuItems
+                                               .Where(item => !item.IsExtra)
+                                               .ToListAsync();
+                response.Data = sandwiche;
+                response.Status = true;
+                response.Message = "success";
+            }
+            catch (Exception ex)
+            {
+                response.Status = false;
+                response.Message = ex.Message;
+            }
+            return response;
+        }
 
         public async Task AddMenuItem(MenuItemModel newItem)
         {
-            _context.MenuItems.Add(newItem);
+        _context.MenuItems.Add(newItem);
             await _context.SaveChangesAsync();
         }
-
-
     }
+
 }
