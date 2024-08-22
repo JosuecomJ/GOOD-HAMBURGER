@@ -11,6 +11,7 @@ The GOOD HAMBURGER API is an ASP.NET Core application that manages orders and me
 - **Controllers**
   - `OrderController.cs`: Controller responsible for managing orders.
   - `MenuItemController.cs`: Controller responsible for managing menu items.
+    
 
 - **Model**
   - `MenuItemModel.cs`: Model representing a menu item.
@@ -26,18 +27,6 @@ The GOOD HAMBURGER API is an ASP.NET Core application that manages orders and me
   - `AppDBContext.cs`: Database context.
   - `SeedData.cs`: Class for initializing data in the database.
 
-## Swagger Configuration
-
-Swagger is configured to automatically generate API documentation. The `[ProducesResponseType]` and `[SwaggerResponse]` annotations are used to specify the response types that the methods can return.
-
-### GOOD-HAMBURGER.csproj
-
-
-## Running the Application
-
-1. Clone the repository.
-2. Navigate to the project directory.
-3. Run the command `dotnet run` to start the application.
 
 
 
