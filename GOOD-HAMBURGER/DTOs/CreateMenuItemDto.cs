@@ -1,20 +1,13 @@
 ﻿using GOOD_HAMBURGER.Model;
 
-public class CreateMenuItemDTO
+namespace GOOD_HAMBURGER.DTOs
 {
-    public CreateMenuItemDTO(ItemType type, string? name, decimal price, bool isExtra)
+    //This DTO is used to create a new MenuItem
+    public class CreateMenuItemDTO
     {
-        Type = type;
-        Name = name;
-        Price = price;
-        IsExtra = isExtra;
+        public ItemType Type { get; set; }
+        public string? Name { get; set; }
+        public decimal Price { get; set; }
+        public bool IsExtra { get; set; }
     }
-
-    public ItemType Type { get; set; }
-    public string? Name { get; set; }
-    public decimal Price { get; set; }
-    public bool IsExtra { get; set; }
-   // public int? OrderRequestId { get; set; } 
-
-   // public OrderRequestModel? OrderRequest { get; set; }
 }

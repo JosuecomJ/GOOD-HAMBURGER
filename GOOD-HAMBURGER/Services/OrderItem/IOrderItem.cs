@@ -1,11 +1,16 @@
-﻿using GOOD_HAMBURGER.Model;
+﻿using GOOD_HAMBURGER.DTOs;
+using GOOD_HAMBURGER.Model;
 
-public interface IOrderService
+namespace GOOD_HAMBURGER.Services.OrderItem
 {
-    decimal CalculateDiscount(List<MenuItemModel> items);
-    Task<ResponseModel<List<OrderRequestModel>>> GetOrdersAsync();
-    Task<ResponseModel<OrderRequestModel>> GetOrderByIdAsync(int id);
-    Task<ResponseModel<OrderRequestModel>> CreateOrderAsync(CreateOrderRequestDTO orderRequestDto);
-    Task<ResponseModel<OrderRequestModel>> UpdateOrderAsync(UpdateOrderRequestDTO orderRequest);
-    Task<ResponseModel<bool>> DeleteOrderAsync(int id);
+    // Interface for Order Service
+    public interface IOrderService
+    {
+        Task<ResponseModel<object>> GetOrdersAsync();
+        Task<ResponseModel<object>> GetOrderByIdAsync(int id);
+        Task<ResponseModel<object>> CreateOrderAsync(CreateOrderRequestDTO orderRequestDto);
+        Task<ResponseModel<object>> UpdateOrderAsync(int id, CreateOrderRequestDTO orderRequest);
+        Task<ResponseModel<object>> DeleteOrderAsync(int id);
+        Task CalculateAndSaveOrderTotalAsync(OrderRequestModel orderRequestModel);
+    }
 }

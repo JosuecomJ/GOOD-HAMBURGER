@@ -1,22 +1,59 @@
-﻿using GOOD_HAMBURGER.Data;
-using GOOD_HAMBURGER.Model;
-using GOOD_HAMBURGER.Services;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
+﻿using GOOD_HAMBURGER.Model;
+using GOOD_HAMBURGER.Services.OrderItem;
+using System.Text.Json.Serialization;
 
-public class CreateOrderRequestDTO
+namespace GOOD_HAMBURGER.DTOs
 {
-    public string? Name { get; set; }
-    public List<int> MenuItemIds { get; set; } = new List<int>();
-
-    public decimal TotalPrice { get; private set; }
-    public decimal Discount { get; private set; }
-
-    public async Task CalculateTotalPriceAsync(AppDBContext context, IOrderService orderService)
+    //DTO to create a new order
+    public class CreateOrderRequestDTO
     {
-        var menuItems = await context.MenuItems.Where(item => MenuItemIds.Contains(item.Id)).ToListAsync();
-        Discount = orderService.CalculateDiscount(menuItems);
-        TotalPrice = menuItems.Sum(item => item.Price) - Discount;
+        public string? Name { get; set; }
+        public List<int> MenuItemIds { get; set; } = [];
+
+        [JsonIgnore]
+        public ICollection<MenuItemModel> MenuItems { get; set; } = [];
+
+        [JsonIgnore]
+        public ICollection<OrderMenuItemDTO> OrderMenuItems { get; set; } = [];
+
+        [JsonIgnore]
+        public decimal TotalPrice { get; private set; }
+
+        [JsonIgnore]
+        public decimal Discount { get; private set; }
+
+        [JsonIgnore]
+        public string FormattedTotalPrice => $"$: {TotalPrice:F2}";
+
+        [JsonIgnore]
+        public string FormattedDiscount => $"$: {Discount:F2}";
+
+        // Method to calculate the total price of the order
+        public async Task CalculateTotalPriceAsync(IOrderService orderService)
+        {
+            var orderRequestModel = ToOrderRequestModel();
+            await orderService.CalculateAndSaveOrderTotalAsync(orderRequestModel);
+            TotalPrice = orderRequestModel.TotalPrice;
+            Discount = orderRequestModel.Discount;
+        }
+
+        // method to convert the DTO to an OrderRequestModel
+        public OrderRequestModel ToOrderRequestModel()
+        {
+            var orderRequest = new OrderRequestModel
+            {
+                Name = Name
+            };
+
+            //Iterate over the MenuItemIds and add the corresponding MenuItem to the OrderRequest
+            orderRequest.OrderMenuItems = MenuItems.Select(mi => new OrderMenuItem
+            {
+                MenuItemId = mi.MenuItemID,
+                MenuItem = mi,
+                OrderRequest = orderRequest 
+            }).ToList();
+
+            return orderRequest;
+        }
     }
 }

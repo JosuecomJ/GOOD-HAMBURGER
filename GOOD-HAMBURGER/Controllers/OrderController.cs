@@ -1,185 +1,107 @@
-﻿using GOOD_HAMBURGER.Data;
+﻿using GOOD_HAMBURGER.DTOs;
 using GOOD_HAMBURGER.Model;
-using GOOD_HAMBURGER.Services;
+using GOOD_HAMBURGER.Services.OrderItem;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace GOOD_HAMBURGER.Controllers
 {
+    
     [ApiController]
     [Route("api/[controller]")]
-    public class OrderController : ControllerBase
+    public class OrderController(IOrderService orderService) : ControllerBase
     {
-        private readonly IOrderService _orderService;
-        private readonly AppDBContext _context;
+        private readonly IOrderService _orderService = orderService;
 
-        public OrderController(IOrderService orderService, AppDBContext context)
-        {
-            _orderService = orderService;
-            _context = context;
-        }
-
+        // GET: api/Order/GetOrders returns all orders
         [HttpGet("GetOrders")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(typeof(ResponseModel<List<OrderRequestModel>>), 200)]
+        [ProducesResponseType(typeof(ResponseModel<object>), 200)]
         [ProducesResponseType(500)]
-        public async Task<ActionResult<IEnumerable<OrderRequestModel>>> GetOrdersAsync()
+        public async Task<IActionResult> GetOrdersAsync()
         {
-            var response = await _orderService.GetOrdersAsync();
-            if (!response.Status)
+            var result = await _orderService.GetOrdersAsync();
+
+            if (result.Status)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, response.Message);
+                return Ok(new
+                {
+                    result.Message,
+                    result.Data
+                });
             }
 
-            var orderResponses = response.Data.Select(order => new
-            {
-                order.Id,
-                order.Name,
-                order.TotalPrice,
-                order.Discount,
-                order.FormattedTotalPrice,
-                order.FormattedDiscount,
-                MenuItems = order.MenuItems.Select(menuItem => new
-                {
-                    menuItem.Id,
-                    menuItem.Name,
-                    menuItem.Price,
-                    menuItem.IsExtra,
-                    menuItem.Type
-                }).ToList()
-            }).ToList();
-
-            return Ok(new
-            {
-                data = orderResponses,
-                message = "Order items retrieved successfully",
-                status = true
-            });
+            return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
         }
-
+        // GET: api/Order/GetOrder/{id} returns order by id
         [HttpGet("GetOrder/{id:int}")]
-        public async Task<ActionResult<OrderRequestModel>> GetOrderById(int id)
+        public async Task<IActionResult> GetOrderById(int id)
         {
-            var response = await _orderService.GetOrderByIdAsync(id);
+            var result = await _orderService.GetOrderByIdAsync(id);
 
-            if (!response.Status)
+            if (result.Status)
             {
-                return NotFound(response.Message);
+                return Ok(new
+                {
+                    result.Message,
+                    result.Data
+                });
             }
 
-            var order = response.Data;
-            var orderResponse = new
-            {
-                order.Id,
-                order.Name,
-                order.TotalPrice,
-                order.Discount,
-                FormattedTotalPrice = order.FormattedTotalPrice,
-                FormattedDiscount = order.FormattedDiscount,
-                MenuItems = order.MenuItems.Select(omi => new
-                {
-                    omi.Id,
-                    omi.Name,
-                    omi.Price,
-                    omi.IsExtra,
-                    omi.Type
-                }).ToList()
-            };
-
-            return Ok(orderResponse);
+            return NotFound(result.Message);
         }
 
-
+        // POST: api/Order/CreateOrder creates a new order 
         [HttpPost("CreateOrder")]
-        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequestDTO createOrderRequestDTO)
+        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequestDTO orderRequestDto)
         {
-            if (createOrderRequestDTO == null || !createOrderRequestDTO.MenuItemIds.Any())
+            if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid order data.");
+                return BadRequest(ModelState);
             }
 
-            var response = await _orderService.CreateOrderAsync(createOrderRequestDTO);
+            var result = await _orderService.CreateOrderAsync(orderRequestDto);
 
-            if (!response.Status)
+            if (!result.Status)
             {
-                return BadRequest(response.Message);
+                return StatusCode(500, result.Message);
             }
 
-            var order = response.Data;
-            var orderResponse = new
-            {
-                order.Id,
-                order.Name,
-                order.TotalPrice,
-                order.Discount,
-                order.FormattedTotalPrice,
-                order.FormattedDiscount,
-                MenuItems = order.MenuItems.Select(omi => new
-                {
-                    omi.Id,
-                    omi.Name,
-                    omi.Price,
-                    omi.IsExtra,
-                    omi.Type
-                }).ToList()
-            };
-
-            return CreatedAtAction(nameof(GetOrderById), new { id = order.Id }, orderResponse);
+            return Ok(result.Data);
         }
 
-
-
-
+        // PUT: api/Order/UpdateOrder/{id} updates order by id
         [HttpPut("UpdateOrder/{id}")]
-        public async Task<IActionResult> UpdateOrder(int id, [FromBody] UpdateOrderRequestDTO orderRequest)
+        public async Task<IActionResult> UpdateOrder(int id, [FromBody] CreateOrderRequestDTO orderRequest)
         {
-            if (id != orderRequest.Id)
-            {
-                return BadRequest("Order ID mismatch.");
-            }
+            var result = await _orderService.UpdateOrderAsync(id, orderRequest);
 
-            var response = await _orderService.UpdateOrderAsync(orderRequest);
-
-            if (!response.Status)
+            if (result.Status)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, response.Message);
-            }
-
-            var updatedOrder = response.Data;
-            var orderResponse = new
-            {
-                updatedOrder.Id,
-                updatedOrder.Name,
-                updatedOrder.TotalPrice,
-                updatedOrder.Discount,
-                FormattedTotalPrice = updatedOrder.FormattedTotalPrice,
-                FormattedDiscount = updatedOrder.FormattedDiscount,
-                MenuItems = updatedOrder.MenuItems.Select(omi => new
+                return Ok(new
                 {
-                    omi.Id,
-                    omi.Name,
-                    omi.Price,
-                    omi.IsExtra,
-                    omi.Type
-                }).ToList()
-            };
+                    result.Message,
+                    result.Data
+                });
+            }
 
-            return Ok(orderResponse);
+            return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
         }
 
-
-
+        // DELETE: api/Order/DeleteOrder/{id} deletes order by id
         [HttpDelete("DeleteOrder/{id}")]
         public async Task<IActionResult> DeleteOrder(int id)
         {
-            var response = await _orderService.DeleteOrderAsync(id);
+            var result = await _orderService.DeleteOrderAsync(id);
 
-            if (!response.Status)
+            if (result.Status)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, response.Message);
+                return Ok(new
+                {
+                    result.Message
+                });
             }
 
-            return NoContent();
+            return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
         }
     }
 }

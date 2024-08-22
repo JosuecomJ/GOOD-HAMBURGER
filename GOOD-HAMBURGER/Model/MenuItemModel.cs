@@ -1,18 +1,28 @@
-﻿using GOOD_HAMBURGER.Model;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-public class MenuItemModel
+namespace GOOD_HAMBURGER.Model
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
-    public string? Name { get; set; }
-    public decimal Price { get; set; }
-    public bool IsExtra { get; set; }
-    public ItemType Type { get; set; }
+    // persistent model for menu items
+    public class MenuItemModel
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int MenuItemID { get; set; }
+        public string? Name { get; set; }
+        public decimal Price { get; set; }
 
-   // [JsonIgnore]
-    //public List<OrderMenuItem> OrderedMenuItem { get; set; } = new List<OrderMenuItem>();
+        //will be used to filter if the is a sandwich or an extra on endpoints
+        public bool IsExtra { get; set; }
+
+        //will be used to determine the type of item and aply discounts logic
+        public ItemType Type { get; set; }
+
+        // navigation property for order menu items
+        [JsonIgnore]
+        public ICollection<OrderMenuItem> OrderMenuItems { get; set; } = [];
+
+
+    }
 }
